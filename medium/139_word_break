@@ -1,0 +1,105 @@
+from typing import List
+
+import string
+import random
+
+
+def generate_random_string(size_s):
+    return ''.join(random.choices(string.ascii_lowercase, k=size_s))
+
+
+def generate_word_dict(word_dict_size):
+    wordDict = set()
+    while len(wordDict) < word_dict_size:
+        word_length = random.randint(1, 20)
+        new_word = ''.join(random.choices(string.ascii_lowercase, k=word_length))
+        wordDict.add(new_word)
+    return list(wordDict)
+
+
+def generate_concatenated_words(word_dict, max_size):
+    s = ''
+    while len(s) < max_size:
+        s += random.choice(word_dict)
+    return s
+
+
+class Solution:
+
+    def __init__(self):
+        self.iterations = 0
+
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+
+        def choose_next_word(current_str):
+            out = []
+            for word in wordDict:
+                if current_str.startswith(word):
+                    out.append(word)
+
+            # print ("choose ", current_str, out)
+            return out
+
+        def explore_rec(current_str, visited):
+            if current_str in visited:
+                return False
+            visited.add(current_str)
+            self.iterations += 1
+            # print ('explore_rec', current_str)
+            if len(current_str) == 0:
+                return True
+            next_words = choose_next_word(current_str)
+            # print (current_str, next_words)
+            if len(next_words) == 0:
+                return False
+
+            for next_word in next_words:
+                l = len(next_word)
+                if explore_rec(current_str[l:], visited):
+                    return True
+            return False
+
+        return explore_rec(s, set())
+
+
+def test1():
+    sol = Solution()
+    s = "leetcode"
+    wordDict = ["leet", "code"]
+    sol = Solution()
+    print(sol.wordBreak(s, wordDict))
+    print(sol.iterations)
+
+
+def test2():
+    sol = Solution()
+    word_dict = generate_word_dict(1000)
+    s = generate_concatenated_words(word_dict, 300)
+    print(sol.wordBreak(s, word_dict))
+    print(sol.iterations)
+
+
+def test3():
+    sol = Solution()
+    word_dict = generate_word_dict(1000)
+    s = generate_random_string(300)
+    print(len(word_dict))
+    print(len(s))
+    assert sol.wordBreak(s, word_dict) == False
+    print(sol.iterations , " iterations")
+
+
+
+
+def test4():
+    sol = Solution()
+    word_dict = generate_word_dict(1000)
+    s = generate_concatenated_words(word_dict, 1000)
+    s += generate_random_string(50)
+    s += generate_concatenated_words(word_dict, 200)
+
+    print(len(word_dict))
+    print(len(s))
+
+    assert sol.wordBreak(s, word_dict) == False
+    print(sol.iterations , " iterations")
